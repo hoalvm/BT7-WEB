@@ -20,4 +20,6 @@ public interface IProductService {
     boolean existsByName(String name);
 
     boolean existsByNameAndIdNot(String name, Long id);
+
+    boolean existsByCategoryId(Long categoryId);
 }

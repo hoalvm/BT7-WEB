@@ -20,4 +20,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByProductName(String name);
 
     Optional<Product> findByCreateDate(Date createDate);
+
+    boolean existsByCategory_CategoryId(Long categoryId);
 }

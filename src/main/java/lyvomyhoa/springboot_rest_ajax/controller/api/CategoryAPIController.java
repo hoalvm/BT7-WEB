@@ -3,6 +3,7 @@ package lyvomyhoa.springboot_rest_ajax.controller.api;
 import lyvomyhoa.springboot_rest_ajax.entity.Category;
 import lyvomyhoa.springboot_rest_ajax.model.Response;
 import lyvomyhoa.springboot_rest_ajax.service.ICategoryService;
+import lyvomyhoa.springboot_rest_ajax.service.IProductService;
 import lyvomyhoa.springboot_rest_ajax.service.IStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class CategoryAPIController {
 
     @Autowired
     private ICategoryService categoryService;
+
+    @Autowired
+    private IProductService productService;
 
     @Autowired
     private IStorageService storageService;
@@ -128,12 +132,23 @@ public class CategoryAPIController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Response.builder().status(false).message("Category not found").body(null).build());
         }
+
+        if (productService.existsByCategoryId(categoryId)) {
+            return ResponseEntity.badRequest()
+                    .body(Response.builder().status(false).message("Cannot delete category: products are assigned to this category").body(null).build());
+        }
+
         Category category = opt.get();
         // Delete icon file if exists
         if (category.getIcon() != null && !category.getIcon().isBlank()) {
             try { storageService.delete(category.getIcon()); } catch (Exception ignored) {}
         }
-        categoryService.deleteById(categoryId);
+        try {
+            categoryService.deleteById(categoryId);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            return ResponseEntity.badRequest()
+                    .body(Response.builder().status(false).message("Cannot delete category: products are assigned to this category").body(null).build());
+        }
         return ResponseEntity.ok(Response.builder().status(true).message("Category deleted successfully").body(null).build());
     }
 }

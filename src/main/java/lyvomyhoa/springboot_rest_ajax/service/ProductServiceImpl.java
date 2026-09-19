@@ -50,4 +50,9 @@ public class ProductServiceImpl implements IProductService {
                 .filter(p -> !p.getProductId().equals(id))
                 .isPresent();
     }
+
+    @Override
+    public boolean existsByCategoryId(Long categoryId) {
+        return productRepository.existsByCategory_CategoryId(categoryId);
+    }
 }
